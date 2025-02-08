@@ -1,4 +1,56 @@
 import streamlit as st
+from flask import Flask, render_template_string
+
+app = Flask(__name__)
+
+# Color Palette
+color_palette = {
+    'background': '#f0f8ff',
+    'table': '#ffebcd',
+    'friends': ['#ff6347', '#4682b4', '#32cd32', '#ffd700'],
+}
+
+@app.route('/friends_meeting')
+def friends_meeting():
+    return '''
+    <html>
+    <head>
+        <style>
+            body {
+                background-color: {background};
+            }
+            .table {
+                background-color: {table};
+                width: 400px;
+                height: 200px;
+                position: relative;
+                margin: auto;
+                border-radius: 10px;
+            }
+            .friend {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                position: absolute;
+                animation: move 2s infinite;
+            }
+            @keyframes move {
+                0% { transform: translate(0, 0); }
+                50% { transform: translate(100px, 0); }
+                100% { transform: translate(0, 0); }
+            }
+        </style>
+    </head>
+    <body>
+        <div class='table'>
+            <div class='friend' style='background-color: {friends[0]}; top: 20px; left: 20px;'></div>
+            <div class='friend' style='background-color: {friends[1]}; top: 20px; right: 20px;'></div>
+            <div class='friend' style='background-color: {friends[2]}; bottom: 20px; left: 20px;'></div>
+            <div class='friend' style='background-color: {friends[3]}; bottom: 20px; right: 20px;'></div>
+        </div>
+    </body>
+    </html>
+    '''.format(**color_palette)
 
 # Title and introductory text
 st.title("Food Finder")
