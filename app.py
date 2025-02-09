@@ -71,19 +71,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 st.markdown("""
     <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align:; font-size: 24px;'>
-            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Where your cravings meet their perfect match.
+            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Where your cravings meet their perfect match.
     </h1>
 """, unsafe_allow_html=True)
 
 # Path to the local image
 image_path = "friends.png"  # Your image filename
 # Display the image caption (optional, can be removed if not needed)
-st.image(image_path, use_container_width=True)
-st.markdown("""
-    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;font-size: 24px;'>
-        Where your cravings meet their perfect match.
-    </h1>
-""", unsafe_allow_html=True)
+st.image(image_path, use_container_width=False)
+
 
 # Page 1: Individual or Group Search
 if st.session_state.page == 1:
