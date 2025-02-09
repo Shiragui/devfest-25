@@ -12,6 +12,7 @@ client = MongoClient("mongodb+srv://annanya:lettuceDecide@cluster0.lrcdj.mongodb
 db = client["food_finder"]
 preferences_collection = db["user_preferences"]
 
+st.set_page_config(page_title="Dine-o-Mite", layout="wide")
 
 def run_server():
     start_server()
@@ -58,9 +59,19 @@ def prev_page():
 
 # Path to the anime logo
 logo_path = "lets.png"  # Your logo filename
+# st.markdown("""
+#     <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 100px; font-weight: bold;margin-bottom: 1px;'>
+#         🍽️ Dine-o- &nbsp&nbsp Mite! 🍕🌮🍣
+#     </h1>
+# """, unsafe_allow_html=True)
 st.markdown("""
-    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 100px; font-weight: bold;margin-bottom: 1px;'>
-        🍽️ Dine-o- &nbsp&nbsp Mite! 🍕🌮🍣
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 160px; font-weight: bold;margin-bottom: 1px;'>
+        &nbsp🍽️ Dine-o-Mite! 🍕🌮
+    </h1>
+""", unsafe_allow_html=True)
+st.markdown("""
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align:; font-size: 24px;'>
+            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Where your cravings meet their perfect match.
     </h1>
 """, unsafe_allow_html=True)
 
