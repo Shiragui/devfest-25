@@ -197,8 +197,6 @@ elif st.session_state.page == 3:
     selected_budget = st.session_state.preferences.get("budget", "Budget")
     selected_budget_index = budget_labels.index(selected_budget) if selected_budget in budget_labels else 0
 
-    budget = st.radio("💸 What’s your vibe?", budget_options, index=selected_budget_index)
-
     eating_options = ["🍴 Dine-In (For the ambiance)", "🥡 Takeout (Sweats mandatory)", "🚚 Delivery (Pajamas forever)"]
     eating_labels = ["Dine-In", "Takeout", "Delivery"]
 
