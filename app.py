@@ -29,6 +29,9 @@ if "page" not in st.session_state:
 if "preferences" not in st.session_state:
     st.session_state.preferences = {}
 
+if "room_code" not in st.session_state:
+    st.session_state.room_code = None  # Initialize room_code
+
 # Function to move to the next page
 def next_page():
     st.session_state.page += 1
@@ -191,18 +194,33 @@ elif st.session_state.page == 3:
     st.button("🔙 Back", on_click=back)
         
     st.button("✅ Submit (aka “Feed Me Now!”)", on_click=next_page)
-    
 
 def save_preferences():
     preferences_data = st.session_state.preferences.copy()
     preferences_data["timestamp"] = datetime.now(timezone.utc)
 
-    preferences_collection.insert_one(preferences_data)
-    st.success("Your preferences have been saved!")
+    if "preferences_saved" not in st.session_state:
+        preferences_collection.insert_one(preferences_data)
+        st.session_state["preferences_saved"] = True
+        st.success("Your preferences have been saved!")
 
-    recommendations = get_recommendations(preferences_data)
+    if "restaurant_choices" not in st.session_state:
+        restaurant_names, recommendations = get_recommendations(preferences_data)
+        st.session_state["restaurant_choices"] = restaurant_names
+        st.session_state["recommendations_text"] = recommendations
+
     st.write("### Recommended Restaurants:")
-    st.write(recommendations)
+    st.write(st.session_state["recommendations_text"])
+    
+    if "restaurant_choices" in st.session_state and st.session_state["restaurant_choices"]:
+        chosen_restaurant = st.selectbox(
+            "🍽️ Choose a restaurant to visit:",
+            st.session_state["restaurant_choices"]
+        )
+    
+        if st.button("Confirm Selection"):
+            st.session_state["final_restaurant"] = chosen_restaurant
+            st.success(f"✅ You have chosen: {chosen_restaurant}!")
 
 if st.session_state.page == 4:
     save_preferences()

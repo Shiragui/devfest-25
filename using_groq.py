@@ -1,4 +1,5 @@
 import os
+import re
 from groq import Groq
 
 GROQ_API_KEY = "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"
@@ -16,8 +17,9 @@ def get_recommendations(user_prefs):
     - Eating Preference: {user_prefs.get('eating_preference', 'Any')}
 
     Suggest some restaurants in the correct location preferred by user which is within 40 miles given with:
-    - **Restaurant Name**
-    - **Address**
+    Format each restaurant as:
+    - **Restaurant Name:** <name>
+    - **Address:** <address>
     - **Google Maps Link** (Format: `https://www.google.com/maps/search/Restaurant+Name+Address`
     - The location of the restaurant is important to keep in mind and should be aligned with the location mentioned in the prompt.)
     - A short reason why they match the preferences.
@@ -28,4 +30,7 @@ def get_recommendations(user_prefs):
         messages=[{"role": "user", "content": query}],
     )
 
-    return response.choices[0].message.content
+    recommendations_text = response.choices[0].message.content
+
+    restaurant_names = re.findall(r"\*\*Restaurant Name:\*\* (.+)", recommendations_text)
+    return restaurant_names, recommendations_text
