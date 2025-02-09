@@ -1,5 +1,18 @@
 import streamlit as st
-import random  # For generating a random room code
+from server import start_server 
+from client import run_client
+import threading
+
+
+def run_server():
+    start_server()
+
+@st.cache_resource
+def load_server():
+    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread.start()
+
+load_server()
 
 # Initialize session state for page tracking
 if "page" not in st.session_state:
@@ -13,10 +26,6 @@ def next_page():
 # Function to go back
 def prev_page():
     st.session_state.page -= 1
-
-# Function to generate a 6-digit room code
-def generate_room_code():
-    return str(random.randint(100000, 999999))
 
 st.title("Let's eat!")
 st.write("Welcome! Find restaurants based on your preferences.")
@@ -44,22 +53,24 @@ elif st.session_state.page == 2:
     st.subheader("Join a Room")
     room_code = st.text_input("Enter the 6-digit room code:")
 
-    if len(room_code) != 6:
-        st.warning("Please enter a valid 6-digit room code.")
-        join_disabled = True
-    else:
-        join_disabled = False
-
+    if st.button("Join"):
+        joined_code = run_client("join", room_code)
+        if joined_code:
+            st.session_state["room_code"] = joined_code  # Store room info
+        else:
+            st.warning("Invalid room code. Try again.")
+    
     st.button("Back", on_click=prev_page)
-    st.button("Join", on_click=next_page, disabled=join_disabled)
+    st.button("Next", on_click=next_page)
 
 # Page 3: Host Room (Generate new room code)
 elif st.session_state.page == 3:
     st.subheader("Host a Room")
-    new_room_code = generate_room_code()
-    st.write(f"Your new room code is: {new_room_code}")
-    st.write("Share this code with your friends to join the room.")
-
+    room_code = run_client("create")  # Get a new room code from server
+    if room_code:
+        st.write(f"Your new room code is: {room_code}")
+        st.write("Share this code with your friends to join the room.")
+        st.session_state["room_code"] = room_code  # Store for reference
     st.button("Back", on_click=prev_page)
     st.button("Next", on_click=next_page)
 
