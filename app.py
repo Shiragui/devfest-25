@@ -50,6 +50,7 @@ st.markdown(
 st.image(image_path, caption="Welcome! Find restaurants based on your preferences.", use_container_width=True)
 
 # Assuming you have a session state to track the current page
+# Assuming you have a session state to track the current page
 if 'page' not in st.session_state:
     st.session_state.page = 1  # Initialize the page if not already set
 
@@ -105,13 +106,21 @@ if st.session_state.page == 2:
     eating_preference = st.radio("How do you prefer to eat?", ["Dine-In", "Takeout", "Delivery"])
 
     # Navigation buttons
-    st.button("Back", on_click=prev_page)
-    st.button("Submit", on_click=next_page)
+    if st.button("Back"):
+        st.session_state.page = 1  # Go back to page 1
+    if st.button("Submit"):
+        next_page()  # Call the function to go to the next page
 
-# Page 3: Group Search Options
+
 # Page 3: Group Search Options
 if st.session_state.page == 3:
     st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
+
+    st.subheader("Choose an Option:")
+    allergies = st.multiselect(
+        "Choose an option:",
+        ["Join the Room", "Host a Room"]
+    )
 
     st.subheader("Where are you?")
     location = st.text_input("Enter your location:")
@@ -146,5 +155,7 @@ if st.session_state.page == 3:
     eating_preference = st.radio("How do you prefer to eat?", ["Dine-In", "Takeout", "Delivery"])
 
     # Navigation buttons
-    st.button("Back", on_click=prev_page)
-    st.button("Submit", on_click=next_page)
+    if st.button("Back"):
+        st.session_state.page = 1  # Go back to page 1
+    if st.button("Submit"):
+        next_page()  # Call the function to go to the next page
