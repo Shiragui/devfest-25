@@ -2,6 +2,14 @@ import streamlit as st
 from server import start_server 
 from client import run_client
 import threading
+from pymongo import MongoClient
+import datetime
+from datetime import datetime, timezone
+from using_groq import get_recommendations
+
+client = MongoClient("mongodb+srv://annanya:lettuceDecide@cluster0.lrcdj.mongodb.net/?ssl=true&tlsAllowInvalidCertificates=true")
+db = client["food_finder"]
+preferences_collection = db["user_preferences"]
 
 def run_server():
     start_server()
@@ -17,6 +25,9 @@ load_server()
 # Initialize session state for page tracking
 if "page" not in st.session_state:
     st.session_state.page = 1
+
+if "preferences" not in st.session_state:
+    st.session_state.preferences = {}
 
 # Function to move to the next page
 def next_page():
@@ -66,7 +77,7 @@ if st.session_state.page == 1:
             st.session_state.page = 2  # Navigate to page 3
 
     st.button("Next", on_click=next)
-        
+    
 
 # Page 2: Options Selection
 elif st.session_state.page == 2:
@@ -119,36 +130,59 @@ elif st.session_state.page == 3:
     # st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
 
     st.subheader("Location, Location, Location?")
-    location = st.text_input("📍Where are you now? No stalking, promise.")
+    location = st.text_input("📍Where are you now? No stalking, promise.", st.session_state.preferences.get("location", ""))
+    st.session_state.preferences["location"] = location
 
     st.subheader("Allergies? 🩺")
     allergies = st.multiselect(
         "Pick your edible enemies:",
-        ["🤢 Peanuts", "🍖 Shellfish", "🥛 Dairy", "🌾 Gluten", "🫘 Soy", "🌰 Tree Nuts", "🥚 Eggs", "❓ Other (Mystery allergies)"]
+        ["🤢 Peanuts", "🍖 Shellfish", "🥛 Dairy", "🌾 Gluten", "🫘 Soy", "🌰 Tree Nuts", "🥚 Eggs", "❓ Other (Mystery allergies)"],
+        default=st.session_state.preferences.get("allergies", [])
     )
+    st.session_state.preferences["allergies"] = allergies
 
     st.subheader("Health-Related Dietary Preference:")
     health_options = st.multiselect(
         "Choose your wellness vibe:",
-        ["🧂 Low-Sodium (aka the flavor monk)", "🥗 Low-Carb (Team Zoodles)", "🍬 Diabetic-Friendly (Sugar, who?)"]
+        ["🧂 Low-Sodium (aka the flavor monk)", "🥗 Low-Carb (Team Zoodles)", "🍬 Diabetic-Friendly (Sugar, who?)"], 
+        default=st.session_state.preferences.get("health_options", [])
     )
+    st.session_state.preferences["health_options"] = health_options
 
     st.subheader("Dietary Restrictions:")
     religious_diet = st.multiselect(
         "What's your food philosophy?",
-        ["🕌 Halal", "✡️  Kosher", "🌱 Vegetarian", "🥦 Vegan", "🐟 Pescatarian", "🚫 Gluten-Free"]
+        ["🕌 Halal", "✡️  Kosher", "🌱 Vegetarian", "🥦 Vegan", "🐟 Pescatarian", "🚫 Gluten-Free"],
+        default=st.session_state.preferences.get("religious_diet", [])
     )
+    st.session_state.preferences["religious_diet"] = religious_diet
 
     st.subheader("Cuisine Cravings:")
     cuisines = st.multiselect(
         "Spin the globe of gastronomy:",
         ["🍝 Italian", "🍔 Mexican", "🍣 Chinese", "🍕 Indian", "🍱 Japanese", "🍙 Thai", "🥗 Mediterranean", "🥘 Middle Eastern",
-         "🍖 Korean", "🍔 American", "🍣 French", "🍚 African", "🍕 Latin American", "🍒 Greek"]
-    )   
+         "🍖 Korean", "🍔 American", "🍣 French", "🍚 African", "🍕 Latin American", "🍒 Greek"],
+        default=st.session_state.preferences.get("cuisines", [])
+    )
+    st.session_state.preferences["cuisines"] = cuisines
 
     st.subheader("Money Matters & Eating Style:")
-    budget = st.radio("💸 What’s your vibe?", ["💰 Budget (Ballin’ on a budget)", "💵 Mid-Range (Treat yourself responsibly)", "💎 Fancy (Caviar dreams and truffle wishes)"])
-    eating_preference = st.radio("🍽️ How would you like to feast?", ["🍴 Dine-In (For the ambiance)", "🥡 Takeout (Sweats mandatory)", "🚚 Delivery (Pajamas forever)"])
+    budget_options = st.radio("💸 What’s your vibe?", ["💰 Budget (Ballin’ on a budget)", "💵 Mid-Range (Treat yourself responsibly)", "💎 Fancy (Caviar dreams and truffle wishes)"])
+    budget_labels = ["Budget", "Mid-Range", "Fancy"] 
+
+    selected_budget = st.session_state.preferences.get("budget", "Budget")
+    selected_budget_index = budget_labels.index(selected_budget) if selected_budget in budget_labels else 0
+
+    budget = st.radio("💸 What’s your vibe?", budget_options, index=selected_budget_index)
+
+    eating_options = ["🍴 Dine-In (For the ambiance)", "🥡 Takeout (Sweats mandatory)", "🚚 Delivery (Pajamas forever)"]
+    eating_labels = ["Dine-In", "Takeout", "Delivery"]
+
+    selected_eating = st.session_state.preferences.get("eating_preference", "Dine-In")
+    selected_eating_index = eating_labels.index(selected_eating) if selected_eating in eating_labels else 0
+
+    eating_preference = st.radio("🍽️ How would you like to feast?", eating_options, index=selected_eating_index)
+
 
     def back():
         st.session_state.page = 1  # Go back to page 1
@@ -157,3 +191,18 @@ elif st.session_state.page == 3:
     st.button("🔙 Back", on_click=back)
         
     st.button("✅ Submit (aka “Feed Me Now!”)", on_click=next_page)
+    
+
+def save_preferences():
+    preferences_data = st.session_state.preferences.copy()
+    preferences_data["timestamp"] = datetime.now(timezone.utc)
+
+    preferences_collection.insert_one(preferences_data)
+    st.success("Your preferences have been saved!")
+
+    recommendations = get_recommendations(preferences_data)
+    st.write("### Recommended Restaurants:")
+    st.write(recommendations)
+
+if st.session_state.page == 4:
+    save_preferences()
