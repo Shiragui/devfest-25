@@ -70,7 +70,7 @@ st.markdown("""
     </h1>
 """, unsafe_allow_html=True)
 st.markdown("""
-    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align:; font-size: 24px;'>
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align:; font-size: 22px;'>
             &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Where your cravings meet their perfect match.
     </h1>
 """, unsafe_allow_html=True)
