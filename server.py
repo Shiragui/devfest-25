@@ -5,6 +5,21 @@ import random
 PORT = 12345
 LOCAL_IP = "127.0.0.1"
 rooms = {}
+restaraunt_names = {}
+votes = {}
+
+def voting_complete(room_code):
+    if room_code in rooms:
+        return votes[room_code] == len(rooms[room_code])
+
+def get_restaraunts(room_code):
+    if room_code in restaraunt_names:
+        return restaraunt_names[room_code]
+
+def concat_restaraunts(restaraunts, room_code):
+    if room_code in restaraunt_names:
+        votes[room_code] += 1
+        restaraunt_names[room_code] += restaraunts
 
 def get_names(room):
     if room not in rooms:
@@ -25,6 +40,8 @@ def handle_client(client_socket):
         if room_code.lower() == "create":
             room_code = generate_code()
             rooms[room_code] = []
+            restaraunt_names[room_code] = []
+            votes[room_code] = 0
             client_socket.send(f"ROOM_CREATED:{room_code}".encode())
             print(f"New room created: {room_code}")
         elif room_code in rooms:

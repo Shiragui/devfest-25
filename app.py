@@ -1,11 +1,12 @@
 import streamlit as st
-from server import start_server, get_names
+from server import start_server, get_names, concat_restaraunts, get_restaraunts, voting_complete
 from client import run_client
 import threading
 import datetime
 from datetime import datetime, timezone
 from using_groq import get_recommendations
 from streamlit_autorefresh import st_autorefresh
+from pymongo import MongoClient
 
 client = MongoClient("mongodb+srv://annanya:lettuceDecide@cluster0.lrcdj.mongodb.net/?ssl=true&tlsAllowInvalidCertificates=true")
 db = client["food_finder"]
@@ -227,11 +228,20 @@ def save_preferences():
     if "restaurant_choices" not in st.session_state:
         restaurant_names, recommendations = get_recommendations(preferences_data)
         st.session_state["restaurant_choices"] = restaurant_names
+        if st.session_state["curr_room"]:
+            concat_restaraunts(restaurant_names, st.session_state["curr_room"])
         st.session_state["recommendations_text"] = recommendations
 
     st.write("### Recommended Restaurants:")
     st.write(st.session_state["recommendations_text"])
     
+    if st.session_state["curr_room"]:
+        # st.warning("waiting for others input...")
+        while not voting_complete(st.session_state["curr_room"]):
+            continue
+        st.session_state["restaurant_choices"] = get_restaraunts(st.session_state["curr_room"])
+
+
     if "restaurant_choices" in st.session_state and st.session_state["restaurant_choices"]:
         chosen_restaurant = st.selectbox(
             "🍽️ Choose a restaurant to visit:",
