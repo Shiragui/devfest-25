@@ -66,7 +66,7 @@ logo_path = "lets.png"  # Your logo filename
 # """, unsafe_allow_html=True)
 st.markdown("""
     <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 110px; font-weight: bold;margin-bottom: 1px;'>
-        &nbsp🍽️ Dine-o-Mite! 🍕🌮
+        &nbsp🍽️ Lettuce Decide! 🍕🌮
     </h1>
 """, unsafe_allow_html=True)
 st.markdown("""
