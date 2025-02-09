@@ -25,56 +25,27 @@ def next_page():
 # Function to go back
 def prev_page():
     st.session_state.page -= 1
-
 # Path to the anime logo
 logo_path = "lets.png"  # Your logo filename
 
-# st.markdown(
-#     f"""
-#     <h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center; margin-top: 20px; margin-bottom: 10px; padding: 5px; background-color: rgba(255, 255, 255, 0.8);'>
-#         <img src="{logo_path}" width="150" style='vertical-align: middle; margin-right: 10px;' />
-#         Let's eat!
-#     </h1>
-#     """,
-#     unsafe_allow_html=True
-# )
-
 st.markdown("""
-    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 150px; font-weight: bold;margin-bottom: 1px;'>
-        🍕 Let's              Eat! 🍽️
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 100px; font-weight: bold;margin-bottom: 1px;'>
+        🍽️ Dine-o- &nbsp&nbsp Mite! 🍕🌮🍣
     </h1>
 """, unsafe_allow_html=True)
 
 # Path to the local image
 image_path = "friends.png"  # Your image filename
-# st.image(image_path, use_container_width=True)
 
-# CSS for full-page background image
-# st.markdown(
-#     f"""
-#     <style>
-#         body {{
-#             background-image: url('{image_path}');
-#             background-size: cover;
-#             background-position: center;
-#             background-repeat: repeat-y;
-#             height: 120vh;  /* Full height */
-#             margin: 0;  /* Remove default margin */
-#             color: white;  /* Optional: Change text color for better visibility */
-#         }}
-#     </style>
-#     """,
-#     unsafe_allow_html=True
-# )
 
 # Display the image caption (optional, can be removed if not needed)
 st.image(image_path, use_container_width=True)
 st.markdown("""
     <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;font-size: 24px;'>
-        Welcome! Find restaurants based on your preferences.
+        Where your cravings meet their perfect match.
     </h1>
 """, unsafe_allow_html=True)
-# Assuming you have a session state to track the current page
+
 # Assuming you have a session state to track the current page
 if 'page' not in st.session_state:
     st.session_state.page = 1  # Initialize the page if not already set
@@ -147,42 +118,42 @@ elif st.session_state.page == 2:
 elif st.session_state.page == 3:
     # st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
 
-    st.subheader("Where are you?")
-    location = st.text_input("Enter your location:")
+    st.subheader("Location, Location, Location?")
+    location = st.text_input("📍Where are you now? No stalking, promise.")
 
-    st.subheader("Select your allergies:")
+    st.subheader("Allergies? 🩺")
     allergies = st.multiselect(
-        "Choose any that apply:",
-        ["Peanuts", "Shellfish", "Dairy", "Gluten", "Soy", "Tree Nuts", "Eggs", "Other"]
+        "Pick your edible enemies:",
+        ["🤢 Peanuts", "🍖 Shellfish", "🥛 Dairy", "🌾 Gluten", "🫘 Soy", "🌰 Tree Nuts", "🥚 Eggs", "❓ Other (Mystery allergies)"]
     )
 
-    st.subheader("Select your health-related dietary preference:")
+    st.subheader("Health-Related Dietary Preference:")
     health_options = st.multiselect(
-        "Choose any that apply:",
-        ["Low-Sodium", "Low-Carb", "Diabetic-Friendly"]
+        "Choose your wellness vibe:",
+        ["🧂 Low-Sodium (aka the flavor monk)", "🥗 Low-Carb (Team Zoodles)", "🍬 Diabetic-Friendly (Sugar, who?)"]
     )
 
-    st.subheader("Select your dietary restrictions:")
+    st.subheader("Dietary Restrictions:")
     religious_diet = st.multiselect(
-        "Choose any that apply:",
-        ["Halal", "Kosher", "Vegetarian", "Vegan", "Pescatarian", "Gluten-Free"]
+        "What's your food philosophy?",
+        ["🕌 Halal", "✡️  Kosher", "🌱 Vegetarian", "🥦 Vegan", "🐟 Pescatarian", "🚫 Gluten-Free"]
     )
 
-    st.subheader("Select your cuisine preferences:")
+    st.subheader("Cuisine Cravings:")
     cuisines = st.multiselect(
-        "Which cuisines do you enjoy?",
-        ["Italian", "Mexican", "Chinese", "Indian", "Japanese", "Thai", "Mediterranean", "Middle Eastern",
-         "Korean", "American", "French", "African", "Latin American", "Greek"]
-    )
+        "Spin the globe of gastronomy:",
+        ["🍝 Italian", "🍔 Mexican", "🍣 Chinese", "🍕 Indian", "🍱 Japanese", "🍙 Thai", "🥗 Mediterranean", "🥘 Middle Eastern",
+         "🍖 Korean", "🍔 American", "🍣 French", "🍚 African", "🍕 Latin American", "🍒 Greek"]
+    )   
 
-    st.subheader("Select your budget and eating preference:")
-    budget = st.radio("What is your budget preference?", ["Budget", "Mid-Range", "Fancy"])
-    eating_preference = st.radio("How do you prefer to eat?", ["Dine-In", "Takeout", "Delivery"])
+    st.subheader("Money Matters & Eating Style:")
+    budget = st.radio("💸 What’s your vibe?", ["💰 Budget (Ballin’ on a budget)", "💵 Mid-Range (Treat yourself responsibly)", "💎 Fancy (Caviar dreams and truffle wishes)"])
+    eating_preference = st.radio("🍽️ How would you like to feast?", ["🍴 Dine-In (For the ambiance)", "🥡 Takeout (Sweats mandatory)", "🚚 Delivery (Pajamas forever)"])
 
     def back():
         st.session_state.page = 1  # Go back to page 1
 
     # Navigation buttons
-    st.button("Back", on_click=back)
+    st.button("🔙 Back", on_click=back)
         
-    st.button("Submit", on_clock=next_page)
+    st.button("✅ Submit (aka “Feed Me Now!”)", on_click=next_page)
