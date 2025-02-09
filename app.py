@@ -1,15 +1,16 @@
 import streamlit as st
-from server import start_server 
+from server import start_server, get_names
 from client import run_client
 import threading
-from pymongo import MongoClient
 import datetime
 from datetime import datetime, timezone
 from using_groq import get_recommendations
+from streamlit_autorefresh import st_autorefresh
 
 client = MongoClient("mongodb+srv://annanya:lettuceDecide@cluster0.lrcdj.mongodb.net/?ssl=true&tlsAllowInvalidCertificates=true")
 db = client["food_finder"]
 preferences_collection = db["user_preferences"]
+
 
 def run_server():
     start_server()
@@ -21,7 +22,6 @@ def load_server():
 
 load_server()
 
-
 # Initialize session state for page tracking
 if "page" not in st.session_state:
     st.session_state.page = 1
@@ -29,8 +29,23 @@ if "page" not in st.session_state:
 if "preferences" not in st.session_state:
     st.session_state.preferences = {}
 
-if "room_code" not in st.session_state:
-    st.session_state.room_code = None  # Initialize room_code
+if 'curr_room' not in st.session_state:
+    st.session_state['curr_room'] = ""
+
+
+@st.fragment
+def display_names():
+    if st.session_state['curr_room']:
+        names = get_names(st.session_state['curr_room'])
+        num_people = len(names)
+
+        if names:
+            for i, col in enumerate(st.columns(num_people)):
+                with col:
+                    st.write(names[i])
+
+    st_autorefresh(interval=3000, key="refresh_names")
+
 
 # Function to move to the next page
 def next_page():
@@ -39,9 +54,9 @@ def next_page():
 # Function to go back
 def prev_page():
     st.session_state.page -= 1
+
 # Path to the anime logo
 logo_path = "lets.png"  # Your logo filename
-
 st.markdown("""
     <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 100px; font-weight: bold;margin-bottom: 1px;'>
         🍽️ Dine-o- &nbsp&nbsp Mite! 🍕🌮🍣
@@ -50,8 +65,6 @@ st.markdown("""
 
 # Path to the local image
 image_path = "friends.png"  # Your image filename
-
-
 # Display the image caption (optional, can be removed if not needed)
 st.image(image_path, use_container_width=True)
 st.markdown("""
@@ -59,10 +72,6 @@ st.markdown("""
         Where your cravings meet their perfect match.
     </h1>
 """, unsafe_allow_html=True)
-
-# Assuming you have a session state to track the current page
-if 'page' not in st.session_state:
-    st.session_state.page = 1  # Initialize the page if not already set
 
 # Page 1: Individual or Group Search
 if st.session_state.page == 1:
@@ -92,27 +101,38 @@ elif st.session_state.page == 2:
 
     join_disabled = True
 
+    room_code = ""
+
     if len(room) > 0 and room[0] == "Join a Room":
         st.subheader("Join a Room")
         room_code = st.text_input("Enter the 6-digit room code:")
+        name = st.text_input("Enter your name")
         if len(room_code) != 6:
             st.warning("Please enter a valid 6-digit room code.")
-        # next_page()
-        joined_code = run_client("join", room_code)
-        if joined_code:
-            st.session_state["room_code"] = joined_code  # Store room info
-            join_disabled = False
         else:
-            st.warning("Invalid room code. Try again.")
+            room_code = run_client("join", name, room_code)
+            if not name:
+                st.warning("Please enter your name")
+            elif room_code:
+                st.session_state["room_code"] = room_code  # Store room info
+                join_disabled = False
+                st.session_state['curr_room'] = room_code
+            else:
+                st.warning("Invalid room code. Try again.")
     
     if len(room) > 0 and room[0] == "Host a Room":
         st.subheader("Host a Room")
-        room_code = run_client("create")  # Get a new room code from server
-        if room_code:
-            st.write(f"Your new room code is: {room_code}")
-            st.write("Share this code with your friends to join the room.")
-            st.session_state["room_code"] = room_code  # Store for reference
-            join_disabled = False
+        name = st.text_input("Enter your name")
+        if not name:
+            st.warning("Please enter your name.")
+        else:  
+            room_code = run_client("create", name)  # Get a new room code from server
+            st.session_state['curr_room'] = room_code
+            if room_code:
+                st.write(f"Your new room code is: {room_code}")
+                st.write("Share this code with your friends to join the room.")
+                st.session_state["room_code"] = room_code  # Store for reference
+                join_disabled = False
 
     def back():
         st.session_state.page = 1  # Go back to page 1
@@ -125,12 +145,12 @@ elif st.session_state.page == 2:
     # Enable the "Join" button only when the room code is valid
     st.button("Join", disabled=join_disabled, on_click=join)
         # Here you can handle the logic for joining the room if needed
-        
 
 
 # Page 3: Remaining Options for Group Search
 elif st.session_state.page == 3:
     # st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
+    display_names()
 
     st.subheader("Location, Location, Location?")
     location = st.text_input("📍Where are you now? No stalking, promise.", st.session_state.preferences.get("location", ""))

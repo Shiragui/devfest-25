@@ -3,7 +3,7 @@ import socket
 IP_ADDR = "127.0.0.1"
 PORT = 12345
 
-def run_client(action, room_code=""):
+def run_client(action, name, room_code=""):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((IP_ADDR, PORT))
 
@@ -13,6 +13,8 @@ def run_client(action, room_code=""):
         server.send(room_code.encode())
 
     response = server.recv(1024).decode()
+    
+    server.send(name.encode())
     
     if response.startswith("ROOM_CREATED"):
         return response.split(":")[1]
