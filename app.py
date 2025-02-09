@@ -13,6 +13,7 @@ def load_server():
 
 load_server()
 
+
 # Initialize session state for page tracking
 if "page" not in st.session_state:
     st.session_state.page = 1
@@ -87,11 +88,14 @@ if st.session_state.page == 1:
         ["Individual", "Group"]
     )
 
-    if st.button("Next"):
+    def next():
         if search_type == "Individual":
             st.session_state.page = 3  # Navigate to page 2
         else:
             st.session_state.page = 2  # Navigate to page 3
+
+    st.button("Next", on_click=next)
+        
 
 # Page 2: Options Selection
 elif st.session_state.page == 2:
@@ -125,13 +129,18 @@ elif st.session_state.page == 2:
             st.session_state["room_code"] = room_code  # Store for reference
             join_disabled = False
 
-    if st.button("Back"):
+    def back():
         st.session_state.page = 1  # Go back to page 1
 
-    # Enable the "Join" button only when the room code is valid
-    if st.button("Join", disabled=join_disabled):
-        # Here you can handle the logic for joining the room if needed
+    def join():
         st.session_state.page = 3  # Navigate to page 3 after joining
+
+    st.button("Back", on_click=back)
+        
+    # Enable the "Join" button only when the room code is valid
+    st.button("Join", disabled=join_disabled, on_click=join)
+        # Here you can handle the logic for joining the room if needed
+        
 
 
 # Page 3: Remaining Options for Group Search
@@ -170,8 +179,10 @@ elif st.session_state.page == 3:
     budget = st.radio("What is your budget preference?", ["Budget", "Mid-Range", "Fancy"])
     eating_preference = st.radio("How do you prefer to eat?", ["Dine-In", "Takeout", "Delivery"])
 
-    # Navigation buttons
-    if st.button("Back"):
+    def back():
         st.session_state.page = 1  # Go back to page 1
-    if st.button("Submit"):
-        next_page()  # Call the function to go to the next page
+
+    # Navigation buttons
+    st.button("Back", on_click=back)
+        
+    st.button("Submit", on_clock=next_page)
