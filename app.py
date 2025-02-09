@@ -1,108 +1,150 @@
 import streamlit as st
-from flask import Flask, render_template_string
 
-app = Flask(__name__)
+# Initialize session state for page tracking
+if "page" not in st.session_state:
+    st.session_state.page = 1
 
-# Color Palette
-color_palette = {
-    'background': '#f0f8ff',
-    'table': '#ffebcd',
-    'friends': ['#ff6347', '#4682b4', '#32cd32', '#ffd700'],
-}
+# Function to move to the next page
+def next_page():
+    st.session_state.page += 1
 
-@app.route('/friends_meeting')
-def friends_meeting():
-    return '''
-    <html>
-    <head>
-        <style>
-            body {
-                background-color: {background};
-            }
-            .table {
-                background-color: {table};
-                width: 400px;
-                height: 200px;
-                position: relative;
-                margin: auto;
-                border-radius: 10px;
-            }
-            .friend {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                position: absolute;
-                animation: move 2s infinite;
-            }
-            @keyframes move {
-                0% { transform: translate(0, 0); }
-                50% { transform: translate(100px, 0); }
-                100% { transform: translate(0, 0); }
-            }
-        </style>
-    </head>
-    <body>
-        <div class='table'>
-            <div class='friend' style='background-color: {friends[0]}; top: 20px; left: 20px;'></div>
-            <div class='friend' style='background-color: {friends[1]}; top: 20px; right: 20px;'></div>
-            <div class='friend' style='background-color: {friends[2]}; bottom: 20px; left: 20px;'></div>
-            <div class='friend' style='background-color: {friends[3]}; bottom: 20px; right: 20px;'></div>
-        </div>
-    </body>
-    </html>
-    '''.format(**color_palette)
+# Function to go back
+def prev_page():
+    st.session_state.page -= 1
 
-# Title and introductory text
-st.title("Food Finder")
-st.write("Welcome! Find restaurants based on your preferences.")
+# Path to the anime logo
+logo_path = "lets.png"  # Your logo filename
 
-# Input for location
-location = st.text_input("Enter your location:")
-if location:
-    st.write(f"Searching for restaurants near {location}...")
+st.markdown(
+    f"""
+    <h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center; margin-top: 20px; margin-bottom: 10px; padding: 5px; background-color: rgba(255, 255, 255, 0.8);'>
+        <img src="{logo_path}" width="150" style='vertical-align: middle; margin-right: 10px;' />
+        Let's eat!
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
-    # Once the location is entered, show the survey
-    st.header("Food Preferences Survey")
+# Path to the local image
+image_path = "friends.png"  # Your image filename
 
-    # Allergies/Dietary Restrictions
+# CSS for full-page background image
+st.markdown(
+    f"""
+    <style>
+        body {{
+            background-image: url('{image_path}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: repeat-y;
+            height: 100vh;  /* Full height */
+            margin: 0;  /* Remove default margin */
+            color: white;  /* Optional: Change text color for better visibility */
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Display the image caption (optional, can be removed if not needed)
+st.image(image_path, caption="Welcome! Find restaurants based on your preferences.", use_container_width=True)
+
+# Assuming you have a session state to track the current page
+if 'page' not in st.session_state:
+    st.session_state.page = 1  # Initialize the page if not already set
+
+# Page 1: Individual or Group Search
+if st.session_state.page == 1:
+    st.subheader("Are you searching alone or with a group?")
+    
+    search_type = st.radio(
+        "Choose one:",
+        ["Individual", "Group"]
+    )
+
+    if st.button("Next"):
+        if search_type == "Individual":
+            st.session_state.page = 2  # Navigate to page 2
+        else:
+            st.session_state.page = 3  # Navigate to page 3
+
+# Page 2: Options Selection
+if st.session_state.page == 2:
+    st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Options</h1>", unsafe_allow_html=True)
+
+    st.subheader("Where are you?")
+    location = st.text_input("Enter your location:")
+
+    st.subheader("Select your allergies:")
     allergies = st.multiselect(
-        "Select your allergies or dietary restrictions:",
-        ["Peanuts", "Shellfish", "Dairy", "Gluten", "Soy", "Tree Nuts", "Eggs", "Other (Specify)"]
-    )
-    custom_allergy = ""
-    if "Other (Specify)" in allergies:
-        custom_allergy = st.text_input("Please specify your custom allergy:")
-
-    # Health Options
-    health_options = st.radio(
-        "Select your health-related dietary preference:",
-        ["Low-sodium", "Low-carb", "Diabetic-friendly", "None"]
+        "Choose any that apply:",
+        ["Peanuts", "Shellfish", "Dairy", "Gluten", "Soy", "Tree Nuts", "Eggs", "Other"]
     )
 
-    # Religious/Dietary Preferences
-    religious_preferences = st.multiselect(
-        "Select your religious/dietary preferences:",
-        ["Halal", "Kosher", "Vegetarian", "Vegan", "Pescatarian", "Hindu-friendly (No beef)", "Jain-friendly (Strict Vegetarian)"]
+    st.subheader("Select your health-related dietary preference:")
+    health_options = st.multiselect(
+        "Choose any that apply:",
+        ["Low-Sodium", "Low-Carb", "Diabetic-Friendly"]
     )
 
-    # Cuisine Preferences
-    cuisine_preferences = st.multiselect(
-        "Select your preferred cuisines:",
-        ["Italian", "Mexican", "Chinese", "Indian", "Japanese", "Thai", "Mediterranean", "Middle Eastern", 
-         "Korean", "American", "French", "African", "Latin American", "Greek"]
+    st.subheader("Select your religious or dietary restrictions:")
+    religious_diet = st.multiselect(
+        "Choose any that apply:",
+        ["Halal", "Kosher", "Vegetarian", "Vegan", "Pescatarian", "Hindu-Friendly (No Beef)", "Jain-Friendly"]
     )
-    not_preferred_cuisine = st.multiselect(
-        "Select cuisines you don't prefer:",
-        ["Italian", "Mexican", "Chinese", "Indian", "Japanese", "Thai", "Mediterranean", "Middle Eastern", 
+
+    st.subheader("Select your cuisine preferences:")
+    cuisines = st.multiselect(
+        "Which cuisines do you enjoy?",
+        ["Italian", "Mexican", "Chinese", "Indian", "Japanese", "Thai", "Mediterranean", "Middle Eastern",
          "Korean", "American", "French", "African", "Latin American", "Greek"]
     )
 
-    # Budget/Eating Preferences
-    budget = st.radio(
-        "Select your budget preference:",
-        ["Low", "Mid-range", "Fancy"]
+    st.subheader("Select your budget and eating preference:")
+    budget = st.radio("What is your budget preference?", ["Budget", "Mid-Range", "Fancy"])
+    eating_preference = st.radio("How do you prefer to eat?", ["Dine-In", "Takeout", "Delivery"])
+
+    # Navigation buttons
+    st.button("Back", on_click=prev_page)
+    st.button("Submit", on_click=next_page)
+
+# Page 3: Group Search Options
+# Page 3: Group Search Options
+if st.session_state.page == 3:
+    st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
+
+    st.subheader("Where are you?")
+    location = st.text_input("Enter your location:")
+
+    st.subheader("Select your allergies:")
+    allergies = st.multiselect(
+        "Choose any that apply:",
+        ["Peanuts", "Shellfish", "Dairy", "Gluten", "Soy", "Tree Nuts", "Eggs", "Other"]
     )
-    eating_preference = st.radio(
-        "Select your eating preference:",
-        ["Dine-in", "Takeout", "Delivery"]
+
+    st.subheader("Select your health-related dietary preference:")
+    health_options = st.multiselect(
+        "Choose any that apply:",
+        ["Low-Sodium", "Low-Carb", "Diabetic-Friendly"]
     )
+
+    st.subheader("Select your religious or dietary restrictions:")
+    religious_diet = st.multiselect(
+        "Choose any that apply:",
+        ["Halal", "Kosher", "Vegetarian", "Vegan", "Pescatarian", "Hindu-Friendly (No Beef)", "Jain-Friendly"]
+    )
+
+    st.subheader("Select your cuisine preferences:")
+    cuisines = st.multiselect(
+        "Which cuisines do you enjoy?",
+        ["Italian", "Mexican", "Chinese", "Indian", "Japanese", "Thai", "Mediterranean", "Middle Eastern",
+         "Korean", "American", "French", "African", "Latin American", "Greek"]
+    )
+
+    st.subheader("Select your budget and eating preference:")
+    budget = st.radio("What is your budget preference?", ["Budget", "Mid-Range", "Fancy"])
+    eating_preference = st.radio("How do you prefer to eat?", ["Dine-In", "Takeout", "Delivery"])
+
+    # Navigation buttons
+    st.button("Back", on_click=prev_page)
+    st.button("Submit", on_click=next_page)
