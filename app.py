@@ -1,4 +1,5 @@
 import streamlit as st
+import random  # For generating a random room code
 
 # Initialize session state for page tracking
 if "page" not in st.session_state:
@@ -6,63 +7,19 @@ if "page" not in st.session_state:
 
 # Function to move to the next page
 def next_page():
-    st.session_state.page += 1
+    page = st.session_state.page
+    st.session_state.page = page_map[page][1]
 
 # Function to go back
 def prev_page():
     st.session_state.page -= 1
 
-# Path to the anime logo
-logo_path = "lets.png"  # Your logo filename
+# Function to generate a 6-digit room code
+def generate_room_code():
+    return str(random.randint(100000, 999999))
 
-# st.markdown(
-#     f"""
-#     <h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center; margin-top: 20px; margin-bottom: 10px; padding: 5px; background-color: rgba(255, 255, 255, 0.8);'>
-#         <img src="{logo_path}" width="150" style='vertical-align: middle; margin-right: 10px;' />
-#         Let's eat!
-#     </h1>
-#     """,
-#     unsafe_allow_html=True
-# )
-
-st.markdown("""
-    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 80px; font-weight: bold;'>
-        🍕 Let's Eat! 🍽️
-    </h1>
-""", unsafe_allow_html=True)
-
-# Path to the local image
-image_path = "friends.png"  # Your image filename
-
-# CSS for full-page background image
-st.markdown(
-    f"""
-    <style>
-        body {{
-            background-image: url('{image_path}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: repeat-y;
-            height: 100vh;  /* Full height */
-            margin: 0;  /* Remove default margin */
-            color: white;  /* Optional: Change text color for better visibility */
-        }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# Display the image caption (optional, can be removed if not needed)
-st.image(image_path, use_container_width=True)
-st.markdown("""
-    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;font-size: 24px;'>
-        Welcome! Find restaurants based on your preferences.
-    </h1>
-""", unsafe_allow_html=True)
-# Assuming you have a session state to track the current page
-# Assuming you have a session state to track the current page
-if 'page' not in st.session_state:
-    st.session_state.page = 1  # Initialize the page if not already set
+st.title("Let's eat!")
+st.write("Welcome! Find restaurants based on your preferences.")
 
 # Page 1: Individual or Group Search
 if st.session_state.page == 1:
@@ -73,11 +30,14 @@ if st.session_state.page == 1:
         ["Individual", "Group"]
     )
 
-    if st.button("Next"):
-        if search_type == "Individual":
-            st.session_state.page = 3  # Navigate to page 2
-        else:
-            st.session_state.page = 2  # Navigate to page 3
+    if search_type == "Group":
+        st.write("Choose an option:")
+        if st.button("Join a Room"):
+            st.session_state.page = 2  # Move to page 2 where users can join a room
+        elif st.button("Host a Room"):
+            st.session_state.page = 3  # Move to page 3 to host a room
+
+    st.button("Next", on_click=next_page)
 
 # Page 2: Options Selection
 elif st.session_state.page == 2:
@@ -90,22 +50,37 @@ elif st.session_state.page == 2:
     else:
         join_disabled = False
 
-    if st.button("Back"):
-        st.session_state.page = 1  # Go back to page 1
+    st.button("Back", on_click=prev_page)
+    st.button("Join", on_click=next_page, disabled=join_disabled)
 
-    # Enable the "Join" button only when the room code is valid
-    if st.button("Join", disabled=join_disabled):
-        # Here you can handle the logic for joining the room if needed
-        st.session_state.page = 3  # Navigate to page 3 after joining
-
-
-# Page 3: Remaining Options for Group Search
+# Page 3: Host Room (Generate new room code)
 elif st.session_state.page == 3:
-    # st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
+    st.subheader("Host a Room")
+    new_room_code = generate_room_code()
+    st.write(f"Your new room code is: {new_room_code}")
+    st.write("Share this code with your friends to join the room.")
 
-    st.subheader("Where are you?")
-    location = st.text_input("Enter your location:")
+    st.button("Back", on_click=prev_page)
+    st.button("Next", on_click=next_page)
 
+# Continue with the other pages as they are
+
+# Page 4: Location Selection
+elif st.session_state.page == 4:
+    st.subheader("Where are you searching?")
+    location = st.text_input("Enter a location:")
+
+    if not location:
+        st.warning("Please enter a location!")
+        next_disabled = True
+    else:
+        next_disabled = False
+
+    st.button("Back", on_click=prev_page)
+    st.button("Next", on_click=next_page, disabled=next_disabled)
+
+# Page 5: Allergies
+elif st.session_state.page == 5:
     st.subheader("Select your allergies:")
     allergies = st.multiselect(
         "Choose any that apply:",
