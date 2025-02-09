@@ -3,7 +3,6 @@ from server import start_server
 from client import run_client
 import threading
 
-
 def run_server():
     start_server()
 
@@ -20,15 +19,64 @@ if "page" not in st.session_state:
 
 # Function to move to the next page
 def next_page():
-    page = st.session_state.page
-    st.session_state.page = page_map[page][1]
+    st.session_state.page += 1
 
 # Function to go back
 def prev_page():
     st.session_state.page -= 1
 
-st.title("Let's eat!")
-st.write("Welcome! Find restaurants based on your preferences.")
+# Path to the anime logo
+logo_path = "lets.png"  # Your logo filename
+
+# st.markdown(
+#     f"""
+#     <h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center; margin-top: 20px; margin-bottom: 10px; padding: 5px; background-color: rgba(255, 255, 255, 0.8);'>
+#         <img src="{logo_path}" width="150" style='vertical-align: middle; margin-right: 10px;' />
+#         Let's eat!
+#     </h1>
+#     """,
+#     unsafe_allow_html=True
+# )
+
+st.markdown("""
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 150px; font-weight: bold;margin-bottom: 1px;'>
+        🍕 Let's              Eat! 🍽️
+    </h1>
+""", unsafe_allow_html=True)
+
+# Path to the local image
+image_path = "friends.png"  # Your image filename
+# st.image(image_path, use_container_width=True)
+
+# CSS for full-page background image
+# st.markdown(
+#     f"""
+#     <style>
+#         body {{
+#             background-image: url('{image_path}');
+#             background-size: cover;
+#             background-position: center;
+#             background-repeat: repeat-y;
+#             height: 120vh;  /* Full height */
+#             margin: 0;  /* Remove default margin */
+#             color: white;  /* Optional: Change text color for better visibility */
+#         }}
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
+
+# Display the image caption (optional, can be removed if not needed)
+st.image(image_path, use_container_width=True)
+st.markdown("""
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;font-size: 24px;'>
+        Welcome! Find restaurants based on your preferences.
+    </h1>
+""", unsafe_allow_html=True)
+# Assuming you have a session state to track the current page
+# Assuming you have a session state to track the current page
+if 'page' not in st.session_state:
+    st.session_state.page = 1  # Initialize the page if not already set
 
 # Page 1: Individual or Group Search
 if st.session_state.page == 1:
@@ -39,59 +87,60 @@ if st.session_state.page == 1:
         ["Individual", "Group"]
     )
 
-    if search_type == "Group":
-        st.write("Choose an option:")
-        if st.button("Join a Room"):
-            st.session_state.page = 2  # Move to page 2 where users can join a room
-        elif st.button("Host a Room"):
-            st.session_state.page = 3  # Move to page 3 to host a room
-
-    st.button("Next", on_click=next_page)
+    if st.button("Next"):
+        if search_type == "Individual":
+            st.session_state.page = 3  # Navigate to page 2
+        else:
+            st.session_state.page = 2  # Navigate to page 3
 
 # Page 2: Options Selection
 elif st.session_state.page == 2:
-    st.subheader("Join a Room")
-    room_code = st.text_input("Enter the 6-digit room code:")
+    st.subheader("Group")
+    room = st.multiselect(
+        "Choose one:",
+        ["Join a Room", "Host a Room"]
+    )
 
-    if st.button("Join"):
+    join_disabled = True
+
+    if len(room) > 0 and room[0] == "Join a Room":
+        st.subheader("Join a Room")
+        room_code = st.text_input("Enter the 6-digit room code:")
+        if len(room_code) != 6:
+            st.warning("Please enter a valid 6-digit room code.")
+        # next_page()
         joined_code = run_client("join", room_code)
         if joined_code:
             st.session_state["room_code"] = joined_code  # Store room info
+            join_disabled = False
         else:
             st.warning("Invalid room code. Try again.")
     
-    st.button("Back", on_click=prev_page)
-    st.button("Next", on_click=next_page)
+    if len(room) > 0 and room[0] == "Host a Room":
+        st.subheader("Host a Room")
+        room_code = run_client("create")  # Get a new room code from server
+        if room_code:
+            st.write(f"Your new room code is: {room_code}")
+            st.write("Share this code with your friends to join the room.")
+            st.session_state["room_code"] = room_code  # Store for reference
+            join_disabled = False
 
-# Page 3: Host Room (Generate new room code)
+    if st.button("Back"):
+        st.session_state.page = 1  # Go back to page 1
+
+    # Enable the "Join" button only when the room code is valid
+    if st.button("Join", disabled=join_disabled):
+        # Here you can handle the logic for joining the room if needed
+        st.session_state.page = 3  # Navigate to page 3 after joining
+
+
+# Page 3: Remaining Options for Group Search
 elif st.session_state.page == 3:
-    st.subheader("Host a Room")
-    room_code = run_client("create")  # Get a new room code from server
-    if room_code:
-        st.write(f"Your new room code is: {room_code}")
-        st.write("Share this code with your friends to join the room.")
-        st.session_state["room_code"] = room_code  # Store for reference
-    st.button("Back", on_click=prev_page)
-    st.button("Next", on_click=next_page)
+    # st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
 
-# Continue with the other pages as they are
+    st.subheader("Where are you?")
+    location = st.text_input("Enter your location:")
 
-# Page 4: Location Selection
-elif st.session_state.page == 4:
-    st.subheader("Where are you searching?")
-    location = st.text_input("Enter a location:")
-
-    if not location:
-        st.warning("Please enter a location!")
-        next_disabled = True
-    else:
-        next_disabled = False
-
-    st.button("Back", on_click=prev_page)
-    st.button("Next", on_click=next_page, disabled=next_disabled)
-
-# Page 5: Allergies
-elif st.session_state.page == 5:
     st.subheader("Select your allergies:")
     allergies = st.multiselect(
         "Choose any that apply:",
@@ -104,10 +153,10 @@ elif st.session_state.page == 5:
         ["Low-Sodium", "Low-Carb", "Diabetic-Friendly"]
     )
 
-    st.subheader("Select your religious or dietary restrictions:")
+    st.subheader("Select your dietary restrictions:")
     religious_diet = st.multiselect(
         "Choose any that apply:",
-        ["Halal", "Kosher", "Vegetarian", "Vegan", "Pescatarian", "Hindu-Friendly (No Beef)", "Jain-Friendly"]
+        ["Halal", "Kosher", "Vegetarian", "Vegan", "Pescatarian", "Gluten-Free"]
     )
 
     st.subheader("Select your cuisine preferences:")
