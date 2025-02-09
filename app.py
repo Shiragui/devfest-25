@@ -12,7 +12,7 @@ client = MongoClient("mongodb+srv://annanya:lettuceDecide@cluster0.lrcdj.mongodb
 db = client["food_finder"]
 preferences_collection = db["user_preferences"]
 
-st.set_page_config(page_title="Dine-o-Mite", layout="wide")
+st.set_page_config(page_title="Lettuce Decide!", layout="wide")
 
 def run_server():
     start_server()
