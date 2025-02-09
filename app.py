@@ -15,15 +15,21 @@ def prev_page():
 # Path to the anime logo
 logo_path = "lets.png"  # Your logo filename
 
-st.markdown(
-    f"""
-    <h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center; margin-top: 20px; margin-bottom: 10px; padding: 5px; background-color: rgba(255, 255, 255, 0.8);'>
-        <img src="{logo_path}" width="150" style='vertical-align: middle; margin-right: 10px;' />
-        Let's eat!
+# st.markdown(
+#     f"""
+#     <h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center; margin-top: 20px; margin-bottom: 10px; padding: 5px; background-color: rgba(255, 255, 255, 0.8);'>
+#         <img src="{logo_path}" width="150" style='vertical-align: middle; margin-right: 10px;' />
+#         Let's eat!
+#     </h1>
+#     """,
+#     unsafe_allow_html=True
+# )
+
+st.markdown("""
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: left; font-size: 80px; font-weight: bold;'>
+        🍕 Let's Eat! 🍽️
     </h1>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # Path to the local image
 image_path = "friends.png"  # Your image filename
@@ -47,8 +53,12 @@ st.markdown(
 )
 
 # Display the image caption (optional, can be removed if not needed)
-st.image(image_path, caption="Welcome! Find restaurants based on your preferences.", use_container_width=True)
-
+st.image(image_path, use_container_width=True)
+st.markdown("""
+    <h1 style='color: #FF4500; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;font-size: 24px;'>
+        Welcome! Find restaurants based on your preferences.
+    </h1>
+""", unsafe_allow_html=True)
 # Assuming you have a session state to track the current page
 # Assuming you have a session state to track the current page
 if 'page' not in st.session_state:
@@ -88,9 +98,10 @@ elif st.session_state.page == 2:
         # Here you can handle the logic for joining the room if needed
         st.session_state.page = 3  # Navigate to page 3 after joining
 
+
 # Page 3: Remaining Options for Group Search
 elif st.session_state.page == 3:
-    st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
+    # st.markdown("<h1 style='font-size: 120px; color: #FF4500; font-family: Arial, sans-serif; text-align: center;'>Group Search Options</h1>", unsafe_allow_html=True)
 
     st.subheader("Where are you?")
     location = st.text_input("Enter your location:")
