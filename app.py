@@ -1,5 +1,5 @@
 import streamlit as st
-from server import start_server, get_names, concat_restaraunts, get_restaraunts, voting_complete
+from server import start_server, get_names, concat_restaraunts, get_restaraunts, voting_complete, preferences_complete, picked_preferences, vote, get_winning_vote
 from client import run_client
 import threading
 import datetime
@@ -235,27 +235,36 @@ def save_preferences():
         st.session_state["restaurant_choices"] = restaurant_names
         if st.session_state["curr_room"]:
             concat_restaraunts(restaurant_names, st.session_state["curr_room"])
+            picked_preferences(st.session_state["curr_room"])
         st.session_state["recommendations_text"] = recommendations
-
+    
     st.write("### Recommended Restaurants:")
     st.write(st.session_state["recommendations_text"])
-    
-    if st.session_state["curr_room"]:
-        # st.warning("waiting for others input...")
-        while not voting_complete(st.session_state["curr_room"]):
-            continue
-        st.session_state["restaurant_choices"] = get_restaraunts(st.session_state["curr_room"])
 
+    if st.session_state["curr_room"]:
+        # Wait for everyone to submit their preferences
+        while not preferences_complete(st.session_state["curr_room"]):
+            continue
+        # Once preferences are complete, get the restaurant choices
+        st.session_state["restaurant_choices"] = get_restaraunts(st.session_state["curr_room"])
 
     if "restaurant_choices" in st.session_state and st.session_state["restaurant_choices"]:
         chosen_restaurant = st.selectbox(
             "🍽️ Choose a restaurant to visit:",
             st.session_state["restaurant_choices"]
         )
-    
+
+        # Handle the final selection
         if st.button("Confirm Selection"):
-            st.session_state["final_restaurant"] = chosen_restaurant
-            st.success(f"✅ You have chosen: {chosen_restaurant}!")
+            if st.session_state["curr_room"]:
+                vote(chosen_restaurant, st.session_state["curr_room"])
+                while not voting_complete(st.session_state["curr_room"]):
+                    continue
+                st.success(get_winning_vote(st.session_state["curr_room"]))
+            else:
+                st.session_state["final_restaurant"] = chosen_restaurant
+                st.success(f"✅ You have chosen: {chosen_restaurant}!")
+
 
 if st.session_state.page == 4:
     save_preferences()

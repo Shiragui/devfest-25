@@ -7,10 +7,38 @@ LOCAL_IP = "127.0.0.1"
 rooms = {}
 restaraunt_names = {}
 votes = {}
+preferences = {}
 
 def voting_complete(room_code):
     if room_code in rooms:
-        return votes[room_code] == len(rooms[room_code])
+        return sum(votes[room_code].values()) == len(rooms[room_code])
+    
+def get_winning_vote(room_code):
+    if room_code in rooms:
+        max_votes = 0
+        rest = ""
+        for v in votes[room_code].keys():
+            if votes[room_code][v] > max_votes:
+                max_votes = votes[room_code][v]
+                rest = v
+        
+        return "The majority voted for: " + rest + " winning by " + str(max_votes) + " votes"
+
+    
+def vote(restaraunt, room_code):
+    if room_code in votes:
+        if restaraunt not in votes[room_code]:
+            votes[room_code][restaraunt] = 1
+        else:
+            votes[room_code][restaraunt] += 1
+    
+def preferences_complete(room_code):
+    if room_code in rooms:
+        return preferences[room_code] == len(rooms[room_code])
+
+def picked_preferences(room_code):
+    if room_code in preferences:
+        preferences[room_code] += 1
 
 def get_restaraunts(room_code):
     if room_code in restaraunt_names:
@@ -18,7 +46,6 @@ def get_restaraunts(room_code):
 
 def concat_restaraunts(restaraunts, room_code):
     if room_code in restaraunt_names:
-        votes[room_code] += 1
         restaraunt_names[room_code] += restaraunts
 
 def get_names(room):
@@ -41,7 +68,8 @@ def handle_client(client_socket):
             room_code = generate_code()
             rooms[room_code] = []
             restaraunt_names[room_code] = []
-            votes[room_code] = 0
+            votes[room_code] = {}
+            preferences[room_code] = 0
             client_socket.send(f"ROOM_CREATED:{room_code}".encode())
             print(f"New room created: {room_code}")
         elif room_code in rooms:
